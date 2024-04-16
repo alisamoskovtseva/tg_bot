@@ -17,8 +17,8 @@ markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=False)
 async def start(update, context):
     user = update.effective_user
     await update.message.reply_html(
-        rf"Привет,{user.mention_html()}! Это телеграмм бот NASA, выбери, что именно тебя интересует:)"
-        rf'', reply_markup=markup)
+        rf'Привет,{user.mention_html()}! Это телеграмм бот NASA! Я умею многое, например, я могу узнать погоду на Марсе или показать как выглядела Земля из космоса в любой день. И самое интересное я могу предоставить фотографию от NASA которую она сделала в определённый день!!' rf'',
+        reply_markup=markup)
 
 
 async def info(update, context):
@@ -34,8 +34,10 @@ async def photo_of_the_Earth(update, context):
 async def weather_on_Mars(update, context):
     await update.message.reply_html('*здесь будет погода')
 
+
 async def photo_NASA(update, context):
-    await update.message.reply_html('Введите интересующую вас дату, и мы вышлем вам фото которое NASA сделала в это день')
+    await update.message.reply_html(
+        'Введите интересующую вас дату, и мы вышлем вам фото которое NASA сделала в это день')
 
 
 def main():
