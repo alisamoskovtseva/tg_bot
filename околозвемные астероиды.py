@@ -1,5 +1,7 @@
 from requests import get
 import json
+
+#список и описание астероидов, пролетавших в указанный период
 api_key='iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
 start_date='2024-02-09'
 end_date='2024-02-10'
@@ -16,5 +18,5 @@ kkeys=['links', 'id', 'neo_reference_id', 'name', 'nasa_jpl_url', 'absolute_magn
        'is_sentry_object']
 
 for date in file['near_earth_objects']:
-    print(file['near_earth_objects'][date][0][f'{kkeys[3]}']) #последнее значение - конечный ключ
+    print(file['near_earth_objects'][date][0]) #последнее значение - конечный ключ
 
