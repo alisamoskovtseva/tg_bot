@@ -32,7 +32,7 @@ async def photo_of_the_Earth(update, context):
 
 
 async def weather_on_Mars(update, context):
-    await update.message.reply_html('*Алиса лох')
+    await update.message.reply_html('*Алиса лlох')
 
 
 async def photo_NASA(update, context):
