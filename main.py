@@ -1,11 +1,14 @@
 import os
-
+import requests
+import time
 import aiohttp
 from dotenv import load_dotenv
 import logging
 from telegram.ext import Application, MessageHandler, filters, CommandHandler, ConversationHandler
 from telegram import ReplyKeyboardMarkup
-#AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa
+
+TOKEN = os.environ.get('TOKEN', '')
+URL = 'https://api.telegram.org/bot'
 
 load_dotenv()
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -33,7 +36,7 @@ async def photo_of_the_Earth(update, context):
 
 
 async def weather_on_Mars(update, context):
-    await update.message.reply_html('*Алиса лlох')
+    await update.message.reply_html('*Алиса умница ваще')
 
 
 async def photo_NASA(update, context):
@@ -50,7 +53,5 @@ def main():
     app.add_handler(CommandHandler('weather_on_Mars', weather_on_Mars))
     app.add_handler(CommandHandler('photo_NASA', photo_NASA))
     app.run_polling()
-
-
 if __name__ == '__main__':
     main()
