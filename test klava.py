@@ -35,39 +35,72 @@ def inline_keyboard_contacts(chat_id, text):
     requests.post(f'{URL}{TOKEN}/sendMessage', data=data)
 
 #сообщение с кнопками функций
-def inline_keyboard_func(chat_id, text):
-    reply_markup = {'inline_keyboard': [[{'text': 'Пинать хуи', 'url': 'https://yandex.ru'},{'text': 'не спать', 'url': 'https://yandex.ru'},{'text': 'страдать', 'url': 'https://yandex.ru'}]]}
+#def inline_keyboard_func(chat_id, text):
+    #reply_markup = {'inline_keyboard': [[{'text': 'Информация о боте', 'url': 'https://yandex.ru'},{'text': 'не спать', 'url': 'https://yandex.ru'},{'text': 'страдать', 'url': 'https://yandex.ru'}]]}
+    #data = {'chat_id': chat_id, 'text': text, 'reply_markup': json.dumps(reply_markup)}
+    #requests.post(f'{URL}{TOKEN}/sendMessage', data=data)
+def inline_keyboard_start(chat_id, text):
+    reply_markup ={ "keyboard": [["Информация о боте и его функциях", "Функционал"],['/start']], "resize_keyboard": True, "one_time_keyboard": True}
     data = {'chat_id': chat_id, 'text': text, 'reply_markup': json.dumps(reply_markup)}
     requests.post(f'{URL}{TOKEN}/sendMessage', data=data)
 
+def inline_keyboard_func(chat_id, text):
+    reply_markup ={ "keyboard": [["Астрономическая картина дня"], ["Околоземные астероиды"], ["Камера для съёмки Земли"], ["Назад"]], "resize_keyboard": True, "one_time_keyboard": True}
+    data = {'chat_id': chat_id, 'text': text, 'reply_markup': json.dumps(reply_markup)}
+    requests.post(f'{URL}{TOKEN}/sendMessage', data=data)
 #типо основные кнопки
 def reply_keyboard(chat_id, text):
     reply_markup ={ "keyboard": [["Астрономическая картина дня", "Околоземные астероиды"], ["Что ты умеешь?"]], "resize_keyboard": True, "one_time_keyboard": True}
     data = {'chat_id': chat_id, 'text': text, 'reply_markup': json.dumps(reply_markup)}
     requests.post(f'{URL}{TOKEN}/sendMessage', data=data)
+def astro_map(chat_id, text):
+    data = {'chat_id': chat_id, 'text': text}
+    requests.post(f'{URL}{TOKEN}/sendMessage', data=data)
+    send_message(chat_id, 'да, повторюшка')
+
 
 #проверка введенного текста (текст кнопки также считается за текст)
 def check_message(chat_id, message):
     if message.lower() in ['привет', 'hello']:
-        send_message(chat_id, 'Привет :)')
+        send_message(chat_id, 'Привет!')
+    elif message.lower() in 'функционал':
+        inline_keyboard_func(chat_id,'ADSD')
+    elif message.lower().split()[0] in 'информация':
+        send_message(chat_id, 'КОРОЧЕ ПРОПИШИ В 3Х СООБЩЕНИЯХ')
+        send_message(chat_id, 'ПРО ВСЕ ФУНКЦИИ')
+        send_message(chat_id, 'КРАТКО!!')
+
     elif message.lower() in 'Контакты':
         inline_keyboard_contacts(chat_id, 'Наши контакты')
-    elif message.lower().split()[-1] in 'астероиды':
-        send_message(chat_id, 'Введите стартовую дату в формате: гггг-мм-дд')
 
+#####Астрономическая картина дня
     elif message.lower().split()[-1] in 'дня':
         # Отправить URL-адрес картинки (телеграм скачает его и отправит)
         send_message(chat_id, 'Введите стартовую дату в формате: гггг-мм-дд')
         send_photo_url(chat_id, 'https://apod.nasa.gov/apod/image/2404/M82Center_HubbleWebb_1080.jpg')
+#####Околоземные астероиды
+    elif message.lower().split()[-1] in 'астероиды':
+        send_message(chat_id, 'Введите стартовую дату в формате: гггг-мм-дд')
+        astro_map(chat_id, message)
+#####Камера для съёмки Земли
+    elif message.lower().split()[0] in 'камера':
+        send_message(chat_id, 'Введите стартовую дату в формате: гггг-мм-дд')
+        send_message(chat_id, 'тут пока ничего нет, но очень много параметров')
+
     elif message.lower() in 'фото с компьютера':
         # Отправить файл с компьютера
         send_photo_file(chat_id, 'photo.jpg')
     elif message.lower() in 'фото с сервера телеграм':
         # Отправить id файла (файл уже хранится где-то на серверах Telegram)
         send_photo_file_id(chat_id, 'AgACAgIAAxkBAAMqYVGBbdbivL53IzKLfUKUClBnB0cAApy0MRtfMZBKHL0tNw9aITwBAAMCAAN4AAMhBA')
-    else:
-        reply_keyboard(chat_id, 'Вот что я умею')
-        inline_keyboard_func(chat_id, 'Весь мой функционал')
+    elif message.lower() in '/start':
+        inline_keyboard_start(chat_id, f'Привет. Это телеграмм бот NASA! Я умею многое, например,'
+                                ' я могу узнать погоду на Марсе или показать как выглядела'
+                                ' Земля из космоса в любой день. И самое интересное я могу'
+                                ' предоставить фотографию от NASA которую она сделала в'
+                                ' определённый день!!')
+    elif message.lower() in 'назад':
+        inline_keyboard_start(chat_id, 'Хорошо, давай начнем сначала :)')
 
 def run():
     update_id = get_updates()[-1]['update_id'] # Присваиваем ID последнего отправленного сообщения боту
