@@ -1,10 +1,11 @@
 import requests
 import time
 import json
-
+import telebot
 #тут все ясно
 TOKEN = '6777897206:AAH7lctWm73bO3eOSg_4o1BXJb61w3m4pY0'
 URL = 'https://api.telegram.org/bot'
+bot = telebot.TeleBot(f"{TOKEN}")
 
 #ринимает сообщения и клики
 def get_updates(offset=0):
@@ -49,10 +50,10 @@ def inline_keyboard_func(chat_id, text):
     data = {'chat_id': chat_id, 'text': text, 'reply_markup': json.dumps(reply_markup)}
     requests.post(f'{URL}{TOKEN}/sendMessage', data=data)
 #типо основные кнопки
-def reply_keyboard(chat_id, text):
-    reply_markup ={ "keyboard": [["Астрономическая картина дня", "Околоземные астероиды"], ["Что ты умеешь?"]], "resize_keyboard": True, "one_time_keyboard": True}
-    data = {'chat_id': chat_id, 'text': text, 'reply_markup': json.dumps(reply_markup)}
-    requests.post(f'{URL}{TOKEN}/sendMessage', data=data)
+# def reply_keyboard(chat_id, text):
+#     reply_markup ={ "keyboard": [["Астрономическая картина дня", "Околоземные астероиды"], ["Что ты умеешь?"]], "resize_keyboard": True, "one_time_keyboard": True}
+#     data = {'chat_id': chat_id, 'text': text, 'reply_markup': json.dumps(reply_markup)}
+#     requests.post(f'{URL}{TOKEN}/sendMessage', data=data)
 def astro_map(chat_id, text):
     data = {'chat_id': chat_id, 'text': text}
     requests.post(f'{URL}{TOKEN}/sendMessage', data=data)
@@ -64,11 +65,28 @@ def check_message(chat_id, message):
     if message.lower() in ['привет', 'hello']:
         send_message(chat_id, 'Привет!')
     elif message.lower() in 'функционал':
-        inline_keyboard_func(chat_id,'ADSD')
+        inline_keyboard_func(chat_id,'Вот все функции, которые может выполнять бот')
     elif message.lower().split()[0] in 'информация':
-        send_message(chat_id, 'КОРОЧЕ ПРОПИШИ В 3Х СООБЩЕНИЯХ')
-        send_message(chat_id, 'ПРО ВСЕ ФУНКЦИИ')
-        send_message(chat_id, 'КРАТКО!!')
+        send_message(chat_id, 'Астрономическая картина дня - '
+                              'Откройте для себя космос! Каждый день'
+                              ' появляется новое изображение или фотография нашей'
+                              ' удивительной Вселенной. вместе с кратким объяснением,'
+                              ' написанным профессиональным астрономом.')
+        send_message(chat_id, 'Околоземные астероиды - '
+                              'С помощью данной функции пользователь может: искать астероиды по дате'
+                              ' их ближайшего сближения с Землей, искать конкретный астероид'
+                              ' по его идентификатору малого тела NASA JPL, а также просматривать'
+                              ' общий набор данных.')
+        send_message(chat_id, 'Камера для съёмки Земли '
+                              'предоставляет информацию о ежедневных изображениях,'
+                              ' собираемых с помощью инструмента DSCOVR Earth Polychromatic'
+                              ' Imaging Camera (EPIC). Уникально расположенный в точке'
+                              ' Лагранжа между Землей и Солнцем, EPIC обеспечивает получение'
+                              ' полных изображений диска Земли и фиксирует уникальные'
+                              ' перспективы определенных астрономических событий, таких как'
+                              ' транзиты Луны, с помощью детектора CCD (Charge Coupled Device)'
+                              ' с разрешением 2048x2048 пикселей, соединенного с'
+                              ' 30-сантиметровой апертурой телескопа Кассегрена.')
 
     elif message.lower() in 'Контакты':
         inline_keyboard_contacts(chat_id, 'Наши контакты')
@@ -86,15 +104,17 @@ def check_message(chat_id, message):
     elif message.lower().split()[0] in 'камера':
         send_message(chat_id, 'Введите стартовую дату в формате: гггг-мм-дд')
         send_message(chat_id, 'тут пока ничего нет, но очень много параметров')
-
-    elif message.lower() in 'фото с компьютера':
+#####ЗАЯЦ
+    elif message.lower() in 'заяц':
         # Отправить файл с компьютера
-        send_photo_file(chat_id, 'photo.jpg')
+        send_photo_file(chat_id, 'zayac.jpg')
     elif message.lower() in 'фото с сервера телеграм':
         # Отправить id файла (файл уже хранится где-то на серверах Telegram)
         send_photo_file_id(chat_id, 'AgACAgIAAxkBAAMqYVGBbdbivL53IzKLfUKUClBnB0cAApy0MRtfMZBKHL0tNw9aITwBAAMCAAN4AAMhBA')
     elif message.lower() in '/start':
-        inline_keyboard_start(chat_id, f'Привет. Это телеграмм бот NASA! Я умею многое, например,'
+        user = bot.get_chat(chat_id)
+        username = user.username
+        inline_keyboard_start(chat_id, f'Привет, {username}. Это телеграмм бот NASA! Я умею многое, например,'
                                 ' я могу узнать погоду на Марсе или показать как выглядела'
                                 ' Земля из космоса в любой день. И самое интересное я могу'
                                 ' предоставить фотографию от NASA которую она сделала в'
