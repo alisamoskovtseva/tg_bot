@@ -12,11 +12,41 @@ logger = logging.getLogger(__name__)
 reply_keyboard = [["/photo_of_the_Earth"], ["/near_Earth_asteroids"], ["/photo_NASA"], ["/start"]]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=False)
 
+async def stop(update, context):
+    await update.message.reply_text("BB")
+    return ConversationHandler.END
+async def photo_of_the_Earth(update, context):
+    await update.message.reply_html('Введите дату которая вас интересует,'
+                                    ' и мы отправим вам фото земли в этот день')
+    return 1
 
 async def stop(update, context):
     await update.message.reply_text("BB")
     return ConversationHandler.END
 
+async def first_response(update, context):
+    locality = update.message.text
+    print(locality)
+    api_key = 'iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
+    url = f'https://api.nasa.gov/planetary/apod?date={locality}&api_key={api_key}'
+    file = get(url).json()
+
+    if len(file) != 0:
+        if len(file) != 1:
+            for num in file:
+                if num == 'url':
+                    url = file['url']
+    await update.message.reply_photo(url)
+
+
+conv_handler = ConversationHandler(
+    entry_points=[CommandHandler('photo_of_the_Earth', photo_of_the_Earth)],
+    states={
+        # Функция читает ответ на первый вопрос и задаёт второй.
+        1: [MessageHandler(filters.TEXT & ~filters.COMMAND, first_response)]
+
+    },
+    fallbacks=[CommandHandler('stop', stop)])
 
 async def photo_of_the_Earth(update, context):
     await update.message.reply_html('Введите дату которая вас интересует,'
@@ -98,6 +128,7 @@ async def data(update, funcc):
 
 
 
+
 async def near_Earth_asteroids(update, context):
     await update.message.reply_html('*Алиса умница ваще')
 
@@ -107,13 +138,31 @@ async def photo_NASA(update, context):
         'Введите интересующую вас дату, и мы вышлем вам фото которое NASA сделала в это день')
 
 
+
+async def near_Earth_asteroids(update, context):
+    await update.message.reply_html('*Алиса умница ваще')
+
+
+async def photo_NASA(update, context):
+    await update.message.reply_html(
+        'Введите интересующую вас дату, и мы вышлем вам фото которое NASA сделала в это день')
+
+
+async def stop(update, context):
+    await update.message.reply_text("BB")
+    return ConversationHandler.END
+
+
 def main():
     token = os.environ.get('TOKEN', '')
     app = Application.builder().token(token).build()
     app.add_handler(conv_handler)  ###размер кнопок  текст на руском?
+    app.add_handler(CommandHandler('start', start))
+    # app.add_handler(CommandHandler('stop', stop))
     app.add_handler(CommandHandler('photo_of_the_Earth', photo_of_the_Earth))
     app.add_handler(CommandHandler('near_Earth_asteroids', near_Earth_asteroids))
     app.add_handler(CommandHandler('photo_NASA', photo_NASA))
+
     app.run_polling()
 
 
