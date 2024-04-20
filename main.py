@@ -57,15 +57,14 @@ async def photo_of_the_Earth(update, context):
 async def first_response(update, context):
     locality = update.message.text
     api_key = 'iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
-    url = f'https://api.nasa.gov/planetary/apod?start_date={locality}&api_key={api_key}'
+    url = f'https://api.nasa.gov/planetary/apod?date={locality}&api_key={api_key}'
     file = get(url).json()
 
     if len(file) != 0:
         if len(file) != 1:
-            for num in range(len(file)):
-                print(file[num])
-                if file[num]['url']:
-                    url = file[num]['url']
+            for num in file:
+                if num == 'url':
+                    url = file['url']
     await update.message.reply_photo(url)
 
 
