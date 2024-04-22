@@ -1,25 +1,107 @@
 import os
-import requests
-import json
-import time
-import aiohttp
+from requests import get
 from dotenv import load_dotenv
 import logging
 from telegram.ext import Application, MessageHandler, filters, CommandHandler, ConversationHandler
 from telegram import ReplyKeyboardMarkup
 
-TOKEN = '6777897206:AAH7lctWm73bO3eOSg_4o1BXJb61w3m4pY0'
-URL = 'https://api.telegram.org/bot'
-
 load_dotenv()
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-reply_keyboard = [["/photo_of_the_Earth"], ["/near_Earth_asteroids"], ["/photo_NASA"], ["/start"]]
+reply_keyboard = [["/photo_of_the_Earth"], ["/photo_Mars"], ["/photo_NASA"], ["/start"]]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=False)
 
 
+async def stop(update, context):
+    await update.message.reply_text("BB")
+    return ConversationHandler.END
 
+
+async def photo_NASA(update, context):
+    await update.message.reply_html('Введите дату которая вас интересует (в формате гггг-мм-дд),'
+                                    ' и мы отправим вам фото, сделанное NASA в этот день')
+    return 1
+
+
+async def first_N_response(update, context):
+    locality = update.message.text
+    print(locality)
+    api_key = 'iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
+    url = f'https://api.nasa.gov/planetary/apod?date={locality}&api_key={api_key}'
+    file = get(url).json()
+
+    if len(file) != 0:
+        if len(file) != 1:
+            for num in file:
+                if num == 'url':
+                    url = file['url']
+    await update.message.reply_photo(url)
+
+
+conv_handler = ConversationHandler(
+    entry_points=[CommandHandler('photo_NASA', photo_NASA)],
+    states={
+        # Функция читает ответ на первый вопрос и задаёт второй.
+        1: [MessageHandler(filters.TEXT & ~filters.COMMAND, first_N_response)]
+
+    },
+    fallbacks=[CommandHandler('stop', stop)])
+
+
+async def photo_of_the_Earth(update, context):
+    await update.message.reply_html('Введите дату которая вас интересует (в формате гггг-мм-дд),'
+                                    ' и мы отправим вам фото земли в этот день')
+    return 3
+
+
+async def first_E_response(update, context):
+    locality = update.message.text
+    s = locality.split('-')
+    print(s)
+    api_key = 'iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
+    url_1 = f'https://api.nasa.gov/EPIC/api/natural/date/{locality}?api_key={api_key}'
+    file = get(url_1).json()
+    url_2 = file[0]['identifier']
+    print(url_2)
+
+    url_3 = f'https://api.nasa.gov/EPIC/archive/natural/{s[0]}/{s[1]}/{s[2]}/png/epic_1b_{url_2}.png?api_key={api_key}'
+    await update.message.reply_photo(url_3)
+
+
+conv_handler2 = ConversationHandler(
+    entry_points=[CommandHandler('photo_of_the_Earth', photo_of_the_Earth)],
+    states={
+        # Функция читает ответ на первый вопрос и задаёт второй.
+        3: [MessageHandler(filters.TEXT & ~filters.COMMAND, first_E_response)]
+
+    },
+    fallbacks=[CommandHandler('stop', stop)])
+
+
+async def photo_Mars(update, context):
+    await update.message.reply_html('Введите дату которая вас интересует (в формате гггг-м-д),'
+                                    ' и мы отправим вам фото, сделанное марсоходом в этот день!')
+    return 5
+
+
+async def first_M_response(update, context):
+    locality = update.message.text
+    print(locality)
+    api_key = 'iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
+    url = f'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date={locality}&api_key={api_key}'
+    file = get(url).json()
+    await update.message.reply_photo(file['photos'][1]['img_src'])
+
+
+conv_handler3 = ConversationHandler(
+    entry_points=[CommandHandler('photo_Mars', photo_Mars)],
+    states={
+        # Функция читает ответ на первый вопрос и задаёт второй.
+        5: [MessageHandler(filters.TEXT & ~filters.COMMAND, first_M_response)]
+
+    },
+    fallbacks=[CommandHandler('stop', stop)])
 
 
 async def start(update, context):
@@ -35,8 +117,7 @@ async def start(update, context):
                                     '<b>•Околоземные астероиды</b>\n'
                                     '<b>•Камера для съёмки Земли</b>')
     await update.message.reply_html('Выберите одну из представленных функций')
-    return 1
-    #МНОГО ТЕКСТА?
+    # МНОГО ТЕКСТА?
     # await update.message.reply_html('<b>Астрономическая картина дня</b> - '
     #                                 'Откройте для себя космос! Каждый день'
     #                                 ' появляется новое изображение или фотография нашей'
@@ -59,54 +140,29 @@ async def start(update, context):
     #                                 ' 30-сантиметровой апертурой телескопа Кассегрена.')
 
 
-
-
-
 async def func(update, context):
     funcc = update.message.text
     await update.message.reply_text(f"Укажите дату")
-    return 2
+    return 2, funcc
+
+
 async def data(update, funcc):
     date = update.message.text
-    await update.message.reply_text(f'Ваша функция:{funcc}\n Ваша дата {date}') #еревести объект тг в текст
-
-
-async def stop(update, context):
-    await update.message.reply_text("BB")
-    return ConversationHandler.END
-
-conv_handler = ConversationHandler(
-    entry_points=[CommandHandler('start', start)],
-    states={
-        1: [MessageHandler(filters.TEXT & ~filters.COMMAND, func)],
-        2: [MessageHandler(filters.TEXT & ~filters.COMMAND, data)]
-    },
-    fallbacks=[CommandHandler('stop', stop)])
-
-async def photo_of_the_Earth(update, context):
-    ...
-    # await update.message.reply_html('Введите дату которая вас интересует,'
-    #                                 ' и мы отправим вам фото земли в этот день')
-
-
-async def near_Earth_asteroids(update, context):
-    ...
-    # await update.message.reply_html('*Алиса умница ваще')
-
-
-async def photo_NASA(update, context):
-    ...
-    # await update.message.reply_html(
-    #     'Введите интересующую вас дату, и мы вышлем вам фото которое NASA сделала в это день')
+    await update.message.reply_text(f'Ваша функция:{funcc}\n Ваша дата {date}')  # pеревести объект тг в текст
 
 
 def main():
     token = os.environ.get('TOKEN', '')
     app = Application.builder().token(token).build()
-    app.add_handler(conv_handler)  ###размер кнопок  текст на руском?
-    app.add_handler(CommandHandler('photo_of_the_Earth', photo_of_the_Earth))
-    app.add_handler(CommandHandler('near_Earth_asteroids', near_Earth_asteroids))
+    app.add_handler(conv_handler)
+    app.add_handler(conv_handler2)
+    app.add_handler(conv_handler3)  ###размер кнопок  текст на руском?
+    app.add_handler(CommandHandler('start', start))
     app.add_handler(CommandHandler('photo_NASA', photo_NASA))
+    app.add_handler(CommandHandler('photo_of_the_Earth', photo_of_the_Earth))
+    app.add_handler(CommandHandler('photo_Mars', photo_Mars))
+    # app.add_handler(CommandHandler('stop', stop))
+
     app.run_polling()
 
 
