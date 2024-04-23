@@ -6,6 +6,15 @@ import logging
 from telegram.ext import Application, MessageHandler, filters, CommandHandler, ConversationHandler
 from telegram import ReplyKeyboardMarkup
 
+from tg_bot.ORM_test.data import db_session
+from tg_bot.ORM_test.data.users import User
+
+db_session.global_init("ORM_test/db/Users.db")
+
+username = ''
+date = ''
+func = ''
+
 load_dotenv()
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -26,9 +35,22 @@ async def photo_NASA(update, context):
 
 
 async def first_N_response(update, context):
+    global username
+    global date
+    global func
+    user = update.effective_user
     locality = update.message.text
     d = dt.datetime.now().date()
     s = []
+    db_sess = db_session.create_session()
+    username = user['username']
+    func = 'photo_NASA'
+    date = ''.join(locality)
+    print(username, func, date)
+    user = User(username=username, date=date, func=func)
+
+    db_sess.add(user)
+    db_sess.commit()
     api_key = 'iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
     url = f'https://api.nasa.gov/planetary/apod?date={locality}&api_key={api_key}'
     file = get(url).json()
@@ -70,7 +92,22 @@ async def photo_of_the_Earth(update, context):
 
 
 async def first_E_response(update, context):
+    global username
+    global date
+    global func
+    db_sess = db_session.create_session()
     locality = update.message.text
+    user = update.effective_user
+    username = user['username']
+    func = 'photo_of_the_Earth'
+    date = ''.join(locality)
+    print(username, func, date)
+    user = User(username=username, date=date, func=func)
+
+    db_sess.add(user)
+    db_sess.commit()
+    s = locality.split('-')
+    print(s)
     d = dt.datetime.now().date()
     s = []
     api_key = 'iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
@@ -113,7 +150,20 @@ async def photo_Mars(update, context):
 
 
 async def first_M_response(update, context):
+    global username
+    global date
+    global func
+    db_sess = db_session.create_session()
     locality = update.message.text
+    user = update.effective_user
+    username = user['username']
+    func = 'photo_Mars'
+    date = ''.join(locality)
+    print(username, func, date)
+    user = User(username=username, date=date, func=func)
+
+    db_sess.add(user)
+    db_sess.commit()
     print(locality)
     api_key = 'iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
     url = f'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date={locality}&api_key={api_key}'
@@ -137,53 +187,60 @@ conv_handler3 = ConversationHandler(
 
     },
     fallbacks=[CommandHandler('stop', stop)])
+a = 1108048915
 
 
 async def start(update, context):
     user = update.effective_user
-    await update.message.reply_html(
-        rf'Привет,{user.mention_html()}! Это телеграмм бот NASA! Я умею многое, например, '
-        rf'я могу узнать погоду на Марсе или показать как выглядела Земля из космоса в любой'
-        rf' день. И самое интересное я могу предоставить фотографию от NASA которую она сделала'
-        rf' в определённый день!!' rf'',
-        reply_markup=markup)
-    await update.message.reply_html('Сейчас немного расскажу про свой функционал:\n'
-                                    '<b>•Астрономическая картина дня</b>\n'
-                                    '<b>•Околоземные астероиды</b>\n'
-                                    '<b>•Камера для съёмки Земли</b>')
-    await update.message.reply_html('Выберите одну из представленных функций')
-    # МНОГО ТЕКСТА?
-    # await update.message.reply_html('<b>Астрономическая картина дня</b> - '
-    #                                 'Откройте для себя космос! Каждый день'
-    #                                 ' появляется новое изображение или фотография нашей'
-    #                                 ' удивительной Вселенной. вместе с кратким объяснением,'
-    #                                 ' написанным профессиональным астрономом.')
-    # await update.message.reply_html('<b>Околоземные астероиды</b> - '
-    #                                 'С помощью данной функции пользователь может: искать астероиды по дате'
-    #                                 ' их ближайшего сближения с Землей, искать конкретный астероид'
-    #                                 ' по его идентификатору малого тела NASA JPL, а также просматривать'
-    #                                 ' общий набор данных.')
-    # await update.message.reply_html('<b>Камера для съёмки Земли</b> '
-    #                                 'предоставляет информацию о ежедневных изображениях,'
-    #                                 ' собираемых с помощью инструмента DSCOVR Earth Polychromatic'
-    #                                 ' Imaging Camera (EPIC). Уникально расположенный в точке'
-    #                                 ' Лагранжа между Землей и Солнцем, EPIC обеспечивает получение'
-    #                                 ' полных изображений диска Земли и фиксирует уникальные'
-    #                                 ' перспективы определенных астрономических событий, таких как'
-    #                                 ' транзиты Луны, с помощью детектора CCD (Charge Coupled Device)'
-    #                                 ' с разрешением 2048x2048 пикселей, соединенного с'
-    #                                 ' 30-сантиметровой апертурой телескопа Кассегрена.')
+    global username
+    username = user['username']
 
+    db_sess = db_session.create_session()
 
-async def func(update, context):
-    funcc = update.message.text
-    await update.message.reply_text(f"Укажите дату")
-    return 2, funcc
+    user_bd = db_sess.query(User).filter(User.username == username).first()
+    if not user_bd:
+
+        await update.message.reply_html(
+            rf'Привет,{user.mention_html()}! Это телеграмм бот NASA! Я умею многое, например, '
+            rf'я могу узнать погоду на Марсе или показать как выглядела Земля из космоса в любой'
+            rf' день. И самое интересное я могу предоставить фотографию от NASA которую она сделала'
+            rf' в определённый день!!' rf'',
+            reply_markup=markup)
+        await update.message.reply_html('Сейчас немного расскажу про свой функционал:\n'
+                                        '<b>•Астрономическая картина дня</b>\n'
+                                        '<b>•Околоземные астероиды</b>\n'
+                                        '<b>•Камера для съёмки Земли</b>')
+        await update.message.reply_html('Выберите одну из представленных функций')
+        # МНОГО ТЕКСТА?
+        # await update.message.reply_html('<b>Астрономическая картина дня</b> - '
+        #                                 'Откройте для себя космос! Каждый день'
+        #                                 ' появляется новое изображение или фотография нашей'
+        #                                 ' удивительной Вселенной. вместе с кратким объяснением,'
+        #                                 ' написанным профессиональным астрономом.')
+        # await update.message.reply_html('<b>Околоземные астероиды</b> - '
+        #                                 'С помощью данной функции пользователь может: искать астероиды по дате'
+        #                                 ' их ближайшего сближения с Землей, искать конкретный астероид'
+        #                                 ' по его идентификатору малого тела NASA JPL, а также просматривать'
+        #                                 ' общий набор данных.')
+        # await update.message.reply_html('<b>Камера для съёмки Земли</b> '
+        #                                 'предоставляет информацию о ежедневных изображениях,'
+        #                                 ' собираемых с помощью инструмента DSCOVR Earth Polychromatic'
+        #                                 ' Imaging Camera (EPIC). Уникально расположенный в точке'
+        #                                 ' Лагранжа между Землей и Солнцем, EPIC обеспечивает получение'
+        #                                 ' полных изображений диска Земли и фиксирует уникальные'
+        #                                 ' перспективы определенных астрономических событий, таких как'
+        #                                 ' транзиты Луны, с помощью детектора CCD (Charge Coupled Device)'
+        #                                 ' с разрешением 2048x2048 пикселей, соединенного с'
+        #                                 ' 30-сантиметровой апертурой телескопа Кассегрена.')
+    else:
+        await update.message.reply_html(
+            rf'Привет,{user.mention_html()}! Рады видеть тебя снова. Выбери интересующую функцию)' rf'',
+            reply_markup=markup)
 
 
 async def data(update, funcc):
     date = update.message.text
-    await update.message.reply_text(f'Ваша функция:{funcc}\n Ваша дата {date}')  # pеревести объект тг в текст
+    await update.message.reply_text(f'Ваша функция:{funcc}\n Ваша дата {date}')  # перевести объект тг в текст
 
 
 def main():
