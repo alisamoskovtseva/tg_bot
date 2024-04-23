@@ -6,8 +6,8 @@ import logging
 from telegram.ext import Application, MessageHandler, filters, CommandHandler, ConversationHandler
 from telegram import ReplyKeyboardMarkup
 
-from tg_bot.ORM_test.data import db_session
-from tg_bot.ORM_test.data.users import User
+from ORM_test.data import db_session
+from ORM_test.data.users import User
 
 db_session.global_init("ORM_test/db/Users.db")
 
@@ -168,6 +168,9 @@ async def first_M_response(update, context):
     api_key = 'iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
     url = f'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date={locality}&api_key={api_key}'
     file = get(url).json()
+    s = locality.split('-')
+    d = dt.datetime.now().date()
+    s = []
     if len(locality.split('-')) != 3:
         await update.message.reply_text('Неверный формат даты, повторите попытку')
     else:
@@ -175,8 +178,14 @@ async def first_M_response(update, context):
     if s[0].isdigit() and s[1].isdigit() and s[2].isdigit():
         if (2018 < int(s[0]) < d.year) and (1 <= int(s[1]) <= 12) and (1 <= int(s[2]) <= 31):
             await update.message.reply_photo(file['photos'][1]['img_src'])
-
+        elif (s[0] == d.year) and (s[1] <= d.month) and (s[1] <= d.day):
+            await update.message.reply_photo(file['photos'][1]['img_src'])
+        else:
+            await update.message.reply_text('Неверный формат даты, повторите попытку1')
+    else:
+        await update.message.reply_text('Неверный формат даты, повторите попытку2')
     return ConversationHandler.END
+
 
 
 conv_handler3 = ConversationHandler(
