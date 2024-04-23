@@ -45,6 +45,7 @@ async def first_N_response(update, context):
                 if num == 'url':
                     url = file['url']
     await update.message.reply_photo(url)
+    return ConversationHandler.END
 
 
 conv_handler = ConversationHandler(
@@ -75,6 +76,7 @@ async def first_E_response(update, context):
 
     url_3 = f'https://api.nasa.gov/EPIC/archive/natural/{s[0]}/{s[1]}/{s[2]}/png/epic_1b_{url_2}.png?api_key={api_key}'
     await update.message.reply_photo(url_3)
+    return ConversationHandler.END
 
 
 conv_handler2 = ConversationHandler(
@@ -100,6 +102,7 @@ async def first_M_response(update, context):
     url = f'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date={locality}&api_key={api_key}'
     file = get(url).json()
     await update.message.reply_photo(file['photos'][1]['img_src'])
+    return ConversationHandler.END
 
 
 conv_handler3 = ConversationHandler(
@@ -163,9 +166,9 @@ def main():
     app.add_handler(conv_handler2)
     app.add_handler(conv_handler3)  ###размер кнопок  текст на руском?
     app.add_handler(CommandHandler('start', start))
-    app.add_handler(CommandHandler('photo_NASA', photo_NASA))
-    app.add_handler(CommandHandler('photo_of_the_Earth', photo_of_the_Earth))
-    app.add_handler(CommandHandler('photo_Mars', photo_Mars))
+    # app.add_handler(CommandHandler('photo_NASA', photo_NASA))
+    # app.add_handler(CommandHandler('photo_of_the_Earth', photo_of_the_Earth))
+    # app.add_handler(CommandHandler('photo_Mars', photo_Mars))
     # app.add_handler(CommandHandler('stop', stop))
 
     app.run_polling()
