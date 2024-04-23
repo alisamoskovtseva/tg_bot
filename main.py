@@ -1,4 +1,5 @@
 import os
+import datetime as dt
 from requests import get
 from dotenv import load_dotenv
 import logging
@@ -26,18 +27,30 @@ async def photo_NASA(update, context):
 
 async def first_N_response(update, context):
     locality = update.message.text
-    print(locality)
+    d = dt.datetime.now().date()
+    s = []
     api_key = 'iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
     url = f'https://api.nasa.gov/planetary/apod?date={locality}&api_key={api_key}'
     file = get(url).json()
-
-    if len(file) != 0:
-        if len(file) != 1:
-            for num in file:
-                if num == 'url':
-                    url = file['url']
-    await update.message.reply_photo(url)
-    return ConversationHandler.END
+    if len(locality.split('-')) != 3:
+        await update.message.reply_text('Неверный формат даты, повторите попытку')
+    else:
+        s = locality.split('-')
+    if s[0].isdigit() and s[1].isdigit() and s[2].isdigit():
+        if (2018 < int(s[0]) < d.year) and (1 <= int(s[1]) <= 12) and (1 <= int(s[2]) <= 31):
+            if len(file) != 0:
+                if len(file) != 1:
+                    for num in file:
+                        if num == 'url':
+                            url = file['url']
+            await update.message.reply_photo(url)
+        elif (s[0] == d.year) and (s[1] <= d.month) and (s[1] <= d.day):
+            await update.message.reply_photo(url)
+        else:
+            await update.message.reply_text('Неверный формат даты, повторите попытку')
+    else:
+        await update.message.reply_text('Неверный формат даты, повторите попытку')
+        return ConversationHandler.END
 
 
 conv_handler = ConversationHandler(
@@ -58,16 +71,28 @@ async def photo_of_the_Earth(update, context):
 
 async def first_E_response(update, context):
     locality = update.message.text
-    s = locality.split('-')
-    print(s)
+    d = dt.datetime.now().date()
+    s = []
     api_key = 'iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
     url_1 = f'https://api.nasa.gov/EPIC/api/natural/date/{locality}?api_key={api_key}'
     file = get(url_1).json()
-    url_2 = file[0]['identifier']
-    print(url_2)
-
-    url_3 = f'https://api.nasa.gov/EPIC/archive/natural/{s[0]}/{s[1]}/{s[2]}/png/epic_1b_{url_2}.png?api_key={api_key}'
-    await update.message.reply_photo(url_3)
+    if len(locality.split('-')) != 3:
+        await update.message.reply_text('Неверный формат даты, повторите попытку')
+    else:
+        s = locality.split('-')
+    if s[0].isdigit() and s[1].isdigit() and s[2].isdigit():
+        if (2018 < int(s[0]) < d.year) and (1 <= int(s[1]) <= 12) and (1 <= int(s[2]) <= 31):
+            url_2 = file[0]['identifier']
+            url_3 = f'https://api.nasa.gov/EPIC/archive/natural/{s[0]}/{s[1]}/{s[2]}/png/epic_1b_{url_2}.png?api_key={api_key}'
+            await update.message.reply_photo(url_3)
+        elif (s[0] == d.year) and (s[1] <= d.month) and (s[1] <= d.day):
+            url_2 = file[0]['identifier']
+            url_3 = f'https://api.nasa.gov/EPIC/archive/natural/{s[0]}/{s[1]}/{s[2]}/png/epic_1b_{url_2}.png?api_key={api_key}'
+            await update.message.reply_photo(url_3)
+        else:
+            await update.message.reply_text('Неверный формат даты, повторите попытку1')
+    else:
+        await update.message.reply_text('Неверный формат даты, повторите попытку2')
     return ConversationHandler.END
 
 
@@ -93,7 +118,14 @@ async def first_M_response(update, context):
     api_key = 'iuCdE8es7d2DuclaVnHviPHbWC8fRT21VfnAykJT'
     url = f'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date={locality}&api_key={api_key}'
     file = get(url).json()
-    await update.message.reply_photo(file['photos'][1]['img_src'])
+    if len(locality.split('-')) != 3:
+        await update.message.reply_text('Неверный формат даты, повторите попытку')
+    else:
+        s = locality.split('-')
+    if s[0].isdigit() and s[1].isdigit() and s[2].isdigit():
+        if (2018 < int(s[0]) < d.year) and (1 <= int(s[1]) <= 12) and (1 <= int(s[2]) <= 31):
+            await update.message.reply_photo(file['photos'][1]['img_src'])
+
     return ConversationHandler.END
 
 
