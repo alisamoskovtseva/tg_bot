@@ -5,6 +5,14 @@ import logging
 from telegram.ext import Application, MessageHandler, filters, CommandHandler, ConversationHandler
 from telegram import ReplyKeyboardMarkup
 
+
+from tg_bot.ORM_test.data import db_session
+from tg_bot.ORM_test.data.users import User
+
+db_session.global_init("ORM_test/db/Users.db")
+db_sess = db_session.create_session()
+user = User()
+
 load_dotenv()
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -102,10 +110,13 @@ conv_handler3 = ConversationHandler(
 
     },
     fallbacks=[CommandHandler('stop', stop)])
-
+a=1108048915
 
 async def start(update, context):
     user = update.effective_user
+    global username
+    username=user['username']
+
     await update.message.reply_html(
         rf'Привет,{user.mention_html()}! Это телеграмм бот NASA! Я умею многое, например, '
         rf'я могу узнать погоду на Марсе или показать как выглядела Земля из космоса в любой'
@@ -140,12 +151,6 @@ async def start(update, context):
     #                                 ' 30-сантиметровой апертурой телескопа Кассегрена.')
 
 
-async def func(update, context):
-    funcc = update.message.text
-    await update.message.reply_text(f"Укажите дату")
-    return 2, funcc
-
-
 async def data(update, funcc):
     date = update.message.text
     await update.message.reply_text(f'Ваша функция:{funcc}\n Ваша дата {date}')  # pеревести объект тг в текст
@@ -168,3 +173,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
