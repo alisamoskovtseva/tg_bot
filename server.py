@@ -1,6 +1,7 @@
 import os
 import datetime as dt
 from requests import get
+from dotenv import load_dotenv
 import logging
 from telegram.ext import Application, MessageHandler, filters, CommandHandler, ConversationHandler
 from telegram import ReplyKeyboardMarkup
@@ -10,18 +11,18 @@ from ORM_test.data.users import User
 
 TOKEN = '6914971789:AAEB-_euEH6a749csn9BeDEWvrru_We1574'
 
-
 db_session.global_init("ORM_test/db/Users.db")
 
 username = ''
 date = ''
 func = ''
 
+load_dotenv()
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 reply_keyboard = [["/photo_of_the_Earth"], ["/photo_Mars"], ["/photo_NASA"], ['/Sun_sistem'],
-                  ["/Info_func"], ["/zayac"], ["/start"], ["/stop"]]
+                  ["/Info_func"], ['/Planet'], ["/zayac"], ["/start"], ["/stop"]]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=False)
 
 
@@ -34,13 +35,19 @@ async def Info_func(update, context):
                                     "Фотография из архивов Nasa по вашей дате")
     await update.message.reply_html('<b>/Sun_sistem</b> '
                                     "Информация о Солнечной системе")
+    await update.message.reply_html('<b>/Planet</b> '
+                                    "При нажатии этой кнопке Вы просто начнете сначало")
     await update.message.reply_html('<b>/zayac</b> '
                                     "Вам пришлют зайца!")
     await update.message.reply_html('<b>/start</b> '
                                     "При нажатии этой кнопке Вы просто начнете сначало")
     await update.message.reply_html('<b>/stop</b> '
                                     "При нажатии этой кнопки бот остановится")
-    await update.message.reply_html('Planet - '
+    await update.message.reply_html('Выберите одну из представленных функций')
+
+
+async def Planet(update, context):
+    await update.message.reply_html('<b>/Planet</b> - '
                                     'информация про планеты нашей солнечной системы:\n'
                                     '<b>/Venus</b> - '
                                     'информация про Венеру\n'
@@ -57,7 +64,6 @@ async def Info_func(update, context):
                                     '<b>/Neptune </b> - '
                                     'информация про Нептун\n'
                                     )
-    await update.message.reply_html('Выберите одну из представленных функций')
 
 
 async def Mercury(update, context):
@@ -424,6 +430,7 @@ def main():
     app.add_handler(CommandHandler('Saturn', Saturn))
     app.add_handler(CommandHandler('Uranus', Uranus))
     app.add_handler(CommandHandler('Neptune', Neptune))
+    app.add_handler(CommandHandler('Planet', Planet))
 
     app.run_polling()
 
