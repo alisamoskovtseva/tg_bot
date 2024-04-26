@@ -9,7 +9,6 @@ from telegram import ReplyKeyboardMarkup
 from tg_bot.ORM_test.data import db_session
 from tg_bot.ORM_test.data.users import User
 
-print(44+60+341)
 
 db_session.global_init("ORM_test/db/Users.db")
 
@@ -187,7 +186,6 @@ async def first_M_response(update, context):
     username = user['username']
     func = 'photo_Mars'
     date = ''.join(locality)
-    print(username, func, date)
     user = User(username=username, date=date, func=func)
 
     db_sess.add(user)
@@ -272,7 +270,6 @@ async def start(update, context):
     db_sess = db_session.create_session()
 
     user_bd = db_sess.query(User).filter(User.username == username).first()
-    print(user_bd)
     if not user_bd:
 
         await update.message.reply_html(
