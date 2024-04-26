@@ -20,6 +20,6 @@ fi
 
 # Install the requirements
 $VIRTUALENV/bin/pip install -r requirements.txt
-
+mkdir ./ORM_test/db
 # Run your glorious application
 $VIRTUALENV/bin/python3 server.py
