@@ -1,7 +1,6 @@
 import os
 import datetime as dt
 from requests import get
-from dotenv import load_dotenv
 import logging
 from telegram.ext import Application, MessageHandler, filters, CommandHandler, ConversationHandler
 from telegram import ReplyKeyboardMarkup
@@ -9,13 +8,15 @@ from telegram import ReplyKeyboardMarkup
 from ORM_test.data import db_session
 from ORM_test.data.users import User
 
+TOKEN = '6914971789:AAEB-_euEH6a749csn9BeDEWvrru_We1574'
+
+
 db_session.global_init("ORM_test/db/Users.db")
 
 username = ''
 date = ''
 func = ''
 
-load_dotenv()
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
